@@ -1,5 +1,11 @@
 package ca.josue_lubaki.sharedelementapp.screen
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -20,15 +26,19 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import ca.josue_lubaki.sharedelementapp.navigation.images
 import coil.compose.AsyncImage
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun DetailScreen(imageId: Int, onClick: () -> Boolean) {
+fun SharedTransitionScope.DetailScreen(
+    animatedVisibilityScope : AnimatedVisibilityScope,
+    imageId: Int,
+    onClick: () -> Boolean
+) {
     Column(modifier =
         Modifier
             .fillMaxSize()
@@ -39,13 +49,17 @@ fun DetailScreen(imageId: Int, onClick: () -> Boolean) {
             contentDescription = "Image by ${images[imageId - 1].author}",
             contentScale = ContentScale.Crop,
             modifier = Modifier
+                .sharedElement(
+                    state = rememberSharedContentState(key = "image-$imageId"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
                 .fillMaxWidth()
                 .height(350.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = { onClick() }
-                )
+                ),
         )
 
         Column(
@@ -61,6 +75,12 @@ fun DetailScreen(imageId: Int, onClick: () -> Boolean) {
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = "author-$imageId"),
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
             )
 
             Text(
@@ -70,6 +90,14 @@ fun DetailScreen(imageId: Int, onClick: () -> Boolean) {
                 softWrap = false,
                 textAlign = TextAlign.Justify,
                 modifier = Modifier
+                    .fillMaxWidth()
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = "description-$imageId"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds
+                    )
                     .alpha(0.6f)
             )
         }
