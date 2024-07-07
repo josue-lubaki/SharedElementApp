@@ -1,5 +1,8 @@
 package ca.josue_lubaki.sharedelementapp.screen
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,8 +13,10 @@ import androidx.compose.ui.unit.dp
 import ca.josue_lubaki.sharedelementapp.composables.UnSplashImageView
 import ca.josue_lubaki.sharedelementapp.navigation.images
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(
+fun SharedTransitionScope.HomeScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onImageClicked: (Int) -> Unit
 ) {
     LazyColumn(
@@ -24,7 +29,8 @@ fun HomeScreen(
         ) { image ->
             UnSplashImageView(
                 data = image,
-                onClick = onImageClicked
+                onClick = onImageClicked,
+                animatedVisibilityScope = animatedVisibilityScope
             )
         }
     }
